@@ -2,6 +2,7 @@ import express from "express";
 import {
   getAllNotesHandler,
   updateByIdHandler,
+  deleteNoteById,
 } from "../handlers/notesHandler.js";
 import { addNoteHandler } from "../handlers/notesHandler.js";
 import { getNoteByIdHandler } from "../handlers/notesHandler.js";
@@ -12,5 +13,6 @@ noteRouter.get("/notes", getAllNotesHandler);
 noteRouter.post("/notes", addNoteHandler);
 noteRouter.get("/notes/:id", getNoteByIdHandler);
 noteRouter.put("/notes/:id", updateByIdHandler);
+noteRouter.delete("/notes/:id", deleteNoteById);
 
 export default noteRouter;

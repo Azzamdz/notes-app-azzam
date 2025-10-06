@@ -1,10 +1,13 @@
 import mysql2 from "mysql2/promise";
 
 export const pool = mysql2.createPool({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "notes_app",
+  host: "sql12.freesqldatabase.com",
+  user: "sql12801515",
+  password: "BidGPpvsgG",
+  database: "sql12801515",
+  waitForConnections: true,
+  connectionLimit: 5,
+  queueLimit: 0,
 });
 
 export const testConnection = async () => {

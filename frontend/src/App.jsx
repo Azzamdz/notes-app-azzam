@@ -5,21 +5,27 @@ import { NoteList } from "./components/NoteList";
 
 function App() {
   const [notes, setNotes] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const baseUrl = "https://notes-app-api-nu.vercel.app";
 
-  const fecthNotes = async () => {
+  const fetchNotes = async () => {
+    setLoading(true);
     try {
       const res = await fetch(`${baseUrl}/notes`);
       const result = await res.json();
       setNotes(result.data);
+      setFilteredNotes(result.data);
     } catch (error) {
-      console.error("error", error);
+      console.error("Error fetching notes:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fecthNotes();
+    fetchNotes();
   }, []);
 
   const addNote = async (newTitle, newContent) => {
@@ -30,9 +36,13 @@ function App() {
         body: JSON.stringify({ title: newTitle, content: newContent }),
       });
       const result = await res.json();
-      if (res.ok) setNotes([...notes, result.data]);
+      if (res.ok) {
+        const updated = [...notes, result.data];
+        setNotes(updated);
+        setFilteredNotes(updated);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error adding note:", error);
     }
   };
 
@@ -45,12 +55,14 @@ function App() {
       });
       const result = await res.json();
       if (res.ok) {
-        setNotes((prev) =>
-          prev.map((note) => (note.id === id ? result.data : note))
+        const updated = notes.map((note) =>
+          note.id === id ? result.data : note
         );
+        setNotes(updated);
+        setFilteredNotes(updated);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error updating note:", error);
     }
   };
 
@@ -59,27 +71,49 @@ function App() {
       const res = await fetch(`${baseUrl}/notes/${id}`, {
         method: "DELETE",
       });
-      if (res.ok) setNotes((prev) => prev.filter((note) => note.id !== id));
+      if (res.ok) {
+        const updated = notes.filter((note) => note.id !== id);
+        setNotes(updated);
+        setFilteredNotes(updated);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error deleting note:", error);
+    }
+  };
+
+  const handleSearch = (query) => {
+    if (!query.trim()) {
+      setFilteredNotes(notes);
+    } else {
+      const lower = query.toLowerCase();
+      const result = notes.filter(
+        (note) =>
+          note.title.toLowerCase().includes(lower) ||
+          note.content.toLowerCase().includes(lower)
+      );
+      setFilteredNotes(result);
     }
   };
 
   const getNoteById = (id) => {
-    console.log(id);
+    console.log("Selected ID:", id);
   };
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen flex flex-col mt-24 items-center">
-        <NoteForm onAddNote={addNote} />
-        <NoteList
-          notes={notes}
-          onDelete={handleDelete}
-          onUpdate={handleUpdateNote}
-          onGetById={getNoteById}
-        />
+      <main className="min-h-screen flex flex-col mt-24 items-center bg-gradient-to-b from-gray-50 to-gray-200 text-gray-900">
+        <NoteForm onAddNote={addNote} onSearch={handleSearch} />
+        {loading ? (
+          <p className="text-gray-500 mt-6">Loading notes...</p>
+        ) : (
+          <NoteList
+            notes={filteredNotes}
+            onDelete={handleDelete}
+            onUpdate={handleUpdateNote}
+            onGetById={getNoteById}
+          />
+        )}
       </main>
     </>
   );

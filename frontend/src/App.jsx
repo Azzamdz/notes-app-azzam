@@ -6,9 +6,11 @@ import { NoteList } from "./components/NoteList";
 function App() {
   const [notes, setNotes] = useState([]);
 
+  const baseUrl = "https://notes-app-api-nu.vercel.app";
+
   const fecthNotes = async () => {
     try {
-      const res = await fetch("http://localhost:3000/notes");
+      const res = await fetch(`${baseUrl}/notes`);
       const result = await res.json();
       setNotes(result.data);
     } catch (error) {
@@ -22,7 +24,7 @@ function App() {
 
   const addNote = async (newTitle, newContent) => {
     try {
-      const res = await fetch("http://localhost:3000/notes", {
+      const res = await fetch(`${baseUrl}/notes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle, content: newContent }),
@@ -36,7 +38,7 @@ function App() {
 
   const handleUpdateNote = async (id, updateTitle, updateContent) => {
     try {
-      const res = await fetch(`http://localhost:3000/notes/${id}`, {
+      const res = await fetch(`${baseUrl}/notes/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: updateTitle, content: updateContent }),
@@ -54,7 +56,7 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/notes/${id}`, {
+      const res = await fetch(`${baseUrl}/notes/${id}`, {
         method: "DELETE",
       });
       if (res.ok) setNotes((prev) => prev.filter((note) => note.id !== id));
